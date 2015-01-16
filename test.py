@@ -3,7 +3,7 @@
 # Author: Keyan Pishdadian 1/15/2015
 
 import unittest
-from main import *
+import markov
 
 class TestSequenceFunctions(unittest.TestCase):
     
@@ -15,8 +15,9 @@ class TestSequenceFunctions(unittest.TestCase):
                                   'jumped':[('over', 1), ('the', 1), ('brown', 1)],
                                   'over':[('the', 1), ('brown', 1), ('fox', 1)]}
         
-    def test_simple_tokenize(self):
-        self.assertEqual(self.output_dictionary, make_markov_dict(self.input_string))
+    def test_dictionary(self):
+        chain_gen = markov.MarkovChain(self.input_string, 3)
+        self.assertEqual(self.output_dictionary, chain_gen.chain_dictionary)
     
 if __name__ == '__main__':
     unittest.main()
