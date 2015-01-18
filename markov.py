@@ -1,5 +1,5 @@
-# Takes as input any string of text and generates a sentence using 3rd order
-# Markov Chains.
+# Takes as input any string of text and generates a sentence using
+# 3rd order Markov Chains.
 # Author: Keyan Pishdadian 1/15/2015
 
 from nltk import PunktWordTokenizer
