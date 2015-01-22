@@ -4,16 +4,17 @@
 
 from nltk import PunktWordTokenizer
 from collections import defaultdict
+import numpy as np
 
 
 class MarkovChain(object):
     def __init__(self, text, order):
+        """Order represents the chain length used."""
         self.text = text
-        self.tokens_list = []
-        # This variable can be changed to generate dictionaries
-        # of any n order chains.
+        self.tokens_list = self.tokenizer()
         self.order = order
         self.chain_dictionary = self.make_markov_chain_dict()
+        # self.weighted_chains = self.calculate_weights()
 
     def make_markov_chain_dict(self):
         """
@@ -22,8 +23,8 @@ class MarkovChain(object):
         value --> defaultdict
 
         Where the defaultdict holds the number of instances a word appears
-        after a previous word.
-        i.e. {'the':[('man':2), ('boy':1), ('dog':2), ('world':8)]}
+        after a previous phrase.
+        i.e. {'the man':[('went':2), ('is':10), ('will':2)]}
         """
         # TODO Performance issues?? With a book length input
         # this would be a huge dictionary!?
@@ -31,8 +32,17 @@ class MarkovChain(object):
         tokens_list = self.tokens_list
         markov_dictionary = {}
 
-        while tokens_list:
-            current_token = tokens_list.pop(0)
+        print tokens_list
+
+        for word in xrange(len(tokens_list)):
+            try:
+                current_token = (tokens_list[word] +
+                                 " " +
+                                 tokens_list[word + 1])
+            except:
+                current_token = tokens_list[word]
+
+            print current_token
             # defaultdict as it's value, allows us to increment the list
             if current_token in markov_dictionary:
                 self.update_dictionary(markov_dictionary,
@@ -48,7 +58,7 @@ class MarkovChain(object):
 
     def tokenizer(self):
         """
-        Seperates input on whitespace, punctuation included in word.
+        Seperates input on whitespace, punctuation is included in word.
         """
         text = self.text
 
@@ -71,18 +81,28 @@ class MarkovChain(object):
         except IndexError:
             return
 
-    def word_select(self, current_state):
+    def calculate_weights(self):
+        """
+        Edits the markov chain dictionary to replace number of instances
+        with a weight between 0 - 1.
+        """
+        for key, value in self.markov_dictionary.items():
+            print value.items()
+
+    def word_select(self, current_word):
         """
         Selects one (? or more ?) words based on the distribution of n+3
         states.
         """
-        # TODO How to select word based on distribution? Bisect?
+        # weighted_chains[current_word]
+        # ''.join(np.random.choice(chain, size=1, replace=False, p=weights)
+        pass
 
     def create_chain(self):
         """
         Uses word_select() to create chains of text of a specific length.
         """
-
+        pass
         # For now, set the maxiumum text chain length to the maximum tweet
         # length.
         # characters_limit = 160
@@ -91,3 +111,6 @@ class MarkovChain(object):
 if __name__ == "__main__":
     chain_gen = MarkovChain("the fox brown fox jumped over the brown fox", 3)
     print chain_gen.chain_dictionary
+    # for key, value in self.markov_dictionary.items():
+    #     print value.items()
+
