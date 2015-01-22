@@ -8,13 +8,12 @@ import numpy as np
 
 
 class MarkovChain(object):
-    def __init__(self, text, order):
+    def __init__(self, text):
         """Order represents the chain length used."""
         self.text = text
         self.tokens_list = self.tokenizer()
-        self.order = order
         self.chain_dictionary = self.make_markov_chain_dict()
-        # self.weighted_chains = self.calculate_weights()
+        self.weighted_chains = self.calculate_weights()
 
     def make_markov_chain_dict(self):
         """
@@ -34,25 +33,29 @@ class MarkovChain(object):
 
         print tokens_list
 
-        for word in xrange(len(tokens_list)):
+        for x in xrange(len(tokens_list)):
             try:
-                current_token = (tokens_list[word] +
+                current_token = (tokens_list[x] +
                                  " " +
-                                 tokens_list[word + 1])
-            except:
-                current_token = tokens_list[word]
+                                 tokens_list[x + 1])
+                next_token_index = x + 2
+            # When there is only one token left, stop making the dictionary.
+            except IndexError:
+                break
 
             print current_token
-            # defaultdict as it's value, allows us to increment the list
+            # Has a defaultdict as its value, allows us to increment the list.
             if current_token in markov_dictionary:
                 self.update_dictionary(markov_dictionary,
                                        tokens_list,
-                                       current_token)
+                                       current_token,
+                                       next_token_index)
             else:
                 markov_dictionary[current_token] = defaultdict(int)
                 self.update_dictionary(markov_dictionary,
                                        tokens_list,
-                                       current_token)
+                                       current_token,
+                                       next_token_index)
 
         return markov_dictionary
 
@@ -68,34 +71,33 @@ class MarkovChain(object):
 
         return tokens_list
 
-    def update_dictionary(self, markov_dictionary, tokens, key):
+    def update_dictionary(self, markov_dictionary, tokens, key, x):
         """
         Takes the markov chain dictionary being built and adds or
         increments the counters which track frequency of future states.
         """
-        order = self.order
-
         try:
-            for x in range(order):
-                markov_dictionary[key][tokens[x]] += 1
+            markov_dictionary[key][tokens[x]] += 1
         except IndexError:
             return
 
-    def calculate_weights(self):
+    def convert_to_tuple_list(self):
         """
         Edits the markov chain dictionary to replace number of instances
-        with a weight between 0 - 1.
+        with a weight between 0 - 1. The value is also changed fromt
+        a defaultdict to a list of tuples.
         """
-        for key, value in self.markov_dictionary.items():
-            print value.items()
+        weighted_chains = {}
+        # Turn the key: defaultdict pair into a key: list of tuples pair
+        for key, value in self.chain_dictionary.items():
+            weighted_chains[key] = value.items()
+
+        return weighted_chains
 
     def word_select(self, current_word):
         """
-        Selects one (? or more ?) words based on the distribution of n+3
-        states.
+        Selects one word in the key,value pair using a weighted random choice
         """
-        # weighted_chains[current_word]
-        # ''.join(np.random.choice(chain, size=1, replace=False, p=weights)
         pass
 
     def create_chain(self):
@@ -109,8 +111,6 @@ class MarkovChain(object):
 
 
 if __name__ == "__main__":
-    chain_gen = MarkovChain("the fox brown fox jumped over the brown fox", 3)
-    print chain_gen.chain_dictionary
-    # for key, value in self.markov_dictionary.items():
-    #     print value.items()
-
+    chain_gen = MarkovChain("the young man has the young man went the young man has the young man could")
+    # chain_gen.weighted_chains
+    # chain_gen.chain_dictionary
