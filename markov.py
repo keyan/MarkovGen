@@ -1,10 +1,11 @@
 # Takes as input any string of text and generates a sentence using
-# 3rd order Markov Chains.
+# 2nd order Markov Chains.
 # Author: Keyan Pishdadian 1/15/2015
 
 from nltk import PunktWordTokenizer
 from collections import defaultdict
 import numpy as np
+import random
 
 
 class MarkovChain(object):
@@ -13,7 +14,7 @@ class MarkovChain(object):
         self.text = text
         self.tokens_list = self.tokenizer()
         self.chain_dictionary = self.make_markov_chain_dict()
-        self.weighted_chains = self.calculate_weights()
+        self.weighted_chains = self.convert_to_tuple_list()
 
     def make_markov_chain_dict(self):
         """
@@ -31,8 +32,6 @@ class MarkovChain(object):
         tokens_list = self.tokens_list
         markov_dictionary = {}
 
-        print tokens_list
-
         for x in xrange(len(tokens_list)):
             try:
                 current_token = (tokens_list[x] +
@@ -43,7 +42,6 @@ class MarkovChain(object):
             except IndexError:
                 break
 
-            print current_token
             # Has a defaultdict as its value, allows us to increment the list.
             if current_token in markov_dictionary:
                 self.update_dictionary(markov_dictionary,
@@ -98,19 +96,31 @@ class MarkovChain(object):
         """
         Selects one word in the key,value pair using a weighted random choice
         """
-        pass
+        denominator = sum(value for key, value in current_word)
+        weights = [float(value) / denominator for key, value in current_word]
+        words = [key for key, value in current_word]
+
+        return str(np.random.choice(words, size=1, replace=False, p=weights))
 
     def create_chain(self):
         """
         Uses word_select() to create chains of text of a specific length.
         """
-        pass
-        # For now, set the maxiumum text chain length to the maximum tweet
-        # length.
-        # characters_limit = 160
+        # Randomly select a starting phrase from the dictionary.
+        current_state = ""
+        while current_state is "":
+            current_state = random.choice(self.weighted_chains.keys())
+        final_string = ""
+        for _ in range(10):
+            final_string += " " + current_state
+            possible_future_states = self.weighted_chains[current_state]
+            print possible_future_states
+            current_state = self.word_select(possible_future_states)
+
+        print final_string
 
 
 if __name__ == "__main__":
     chain_gen = MarkovChain("the young man has the young man went the young man has the young man could")
-    # chain_gen.weighted_chains
-    # chain_gen.chain_dictionary
+
+    print chain_gen.create_chain()
