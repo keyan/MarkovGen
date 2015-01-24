@@ -20,7 +20,8 @@ class MarkovChain(object):
 
     def make_string(self):
         input_text = open(sys.argv[1], 'rb').read()
-        input_text = input_text.replace("?,.;", "")
+        input_text = input_text.translate(string.maketrans("",""),
+                                          string.punctuation)
         return input_text
 
     def make_markov_chain_dict(self):
@@ -122,7 +123,7 @@ class MarkovChain(object):
         while not self.weighted_chains[current_token]:
             current_token = random.choice(self.weighted_chains.keys())
             current_state = current_token
-        for _ in range(12):
+        for _ in range(int(sys.argv[2])):
             final_string += current_state + " "
             current_token = (final_string.split()[-2] +
                              " " +
