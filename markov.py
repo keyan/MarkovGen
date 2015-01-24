@@ -6,15 +6,23 @@ from nltk import PunktWordTokenizer
 from collections import defaultdict
 import numpy as np
 import random
+import sys
+import string
 
 
 class MarkovChain(object):
-    def __init__(self, text):
+    def __init__(self):
         """Order represents the chain length used."""
-        self.text = text
+        self.text = self.make_string()
         self.tokens_list = self.tokenizer()
         self.chain_dictionary = self.make_markov_chain_dict()
         self.weighted_chains = self.convert_to_tuple_list()
+
+    def make_string(self):
+        input_text = open(sys.argv[1], 'rb').read()
+        input_text = input_text.replace("?,.;", "")
+        print input_text
+        return input_text
 
     def make_markov_chain_dict(self):
         """
@@ -99,28 +107,39 @@ class MarkovChain(object):
         denominator = sum(value for key, value in current_word)
         weights = [float(value) / denominator for key, value in current_word]
         words = [key for key, value in current_word]
+        word = list(np.random.choice(words, size=1, replace=False, p=weights))
 
-        return str(np.random.choice(words, size=1, replace=False, p=weights))
+        return word.pop()
 
-    def create_chain(self):
+    def generate(self):
         """
         Uses word_select() to create chains of text of a specific length.
         """
         # Randomly select a starting phrase from the dictionary.
-        current_state = ""
-        while current_state is "":
-            current_state = random.choice(self.weighted_chains.keys())
         final_string = ""
-        for _ in range(10):
-            final_string += " " + current_state
-            possible_future_states = self.weighted_chains[current_state]
-            print possible_future_states
-            current_state = self.word_select(possible_future_states)
+        current_token = random.choice(self.weighted_chains.keys())
+        current_state = current_token
+        # If the random key has no value in the dictionary, keep generating
+        while not self.weighted_chains[current_token]:
+            current_token = random.choice(self.weighted_chains.keys())
+            current_state = current_token
+            print current_state
+        for _ in range(12):
+            final_string += current_state + " "
+            current_token = (final_string.split()[-2] +
+                             " " +
+                             final_string.split()[-1])
 
-        print final_string
+            future_states = self.weighted_chains[current_token]
+            while not future_states:
+                future_states = random.choice(self.weighted_chains.keys())
+            print future_states
+            current_state = self.word_select(future_states)
+
+        return final_string
 
 
 if __name__ == "__main__":
-    chain_gen = MarkovChain("the young man has the young man went the young man has the young man could")
+    chain_gen = MarkovChain()
 
-    print chain_gen.create_chain()
+    print chain_gen.generate()
