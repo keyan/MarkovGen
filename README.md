@@ -14,4 +14,8 @@ Some example text generate from [The Sayings of Confucius]:
 
 >His face changed when he was asked what is meant by kindness without waste
 
+
+I have also made this into a Flask web app, live @: [MarkovGen][mg]
+
 [The Sayings of Confucius]: https://www.gutenberg.org/ebooks/24055
+[mg]: http://www.keyanp.com

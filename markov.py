@@ -20,7 +20,7 @@ class MarkovChain(object):
 
     def make_string(self):
         input_text = open(sys.argv[1], 'rb').read()
-        input_text = input_text.translate(string.maketrans("",""),
+        input_text = input_text.translate(string.maketrans("", ""),
                                           string.punctuation)
         return input_text
 
@@ -32,19 +32,13 @@ class MarkovChain(object):
 
         Where the defaultdict holds the number of instances a word appears
         after a previous phrase.
-        i.e. {'the man':[('went':2), ('is':10), ('will':2)]}
         """
-        # TODO Performance issues?? With a book length input
-        # this would be a huge dictionary!?
-
         tokens_list = self.tokens_list
         markov_dictionary = {}
 
         for x in xrange(len(tokens_list)):
             try:
-                current_token = (tokens_list[x] +
-                                 " " +
-                                 tokens_list[x + 1])
+                current_token = " ".join(tokens_list[x], tokens_list[x + 1])
                 next_token_index = x + 2
             # When there is only one token left, stop making the dictionary.
             except IndexError:
@@ -119,15 +113,14 @@ class MarkovChain(object):
         final_string = ""
         current_token = random.choice(self.weighted_chains.keys())
         current_state = current_token
-        # If the random key has no value in the dictionary, keep generating
+        # If the random key has no value in the dictionary, keep generating.
         while not self.weighted_chains[current_token]:
             current_token = random.choice(self.weighted_chains.keys())
             current_state = current_token
         for _ in range(int(sys.argv[2])):
-            final_string += current_state + " "
-            current_token = (final_string.split()[-2] +
-                             " " +
-                             final_string.split()[-1])
+            final_string = current_state + " "
+            current_token = " ".join(final_string.split()[-2],
+                                     final_string.split()[-1])
 
             future_states = self.weighted_chains[current_token]
             while not future_states:
